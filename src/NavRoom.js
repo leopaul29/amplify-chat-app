@@ -21,11 +21,20 @@ function NavRoom() {
 
 		return () => subscription.unsubscribe();
 	}, []);
+
+	function changeRoom(roomId) {
+		//setState(...state, { roomId: roomId });
+	}
+
 	return (
 		<nav>
 			<ul>
 				{rooms.map((room) => {
-					return <li key={room.id}>{room.roomname}</li>;
+					return (
+						<li key={room.id} onClick={() => changeRoom(room.id)}>
+							{room.roomname}
+						</li>
+					);
 				})}
 			</ul>
 		</nav>

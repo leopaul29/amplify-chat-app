@@ -8,7 +8,6 @@ import Chat from "./Chat";
 Amplify.configure(awsConfig);
 
 function App() {
-	const [state, setState] = useState({});
 	return (
 		<div className="App">
 			<h1>Amplify Chat app</h1>

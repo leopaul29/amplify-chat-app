@@ -9,6 +9,15 @@ async function listMessages(setMessages) {
 }
 function Chat() {
 	const [messages, setMessages] = useState([]);
+	const [inputText, setInputText] = useState([]);
+
+	const onChange = (e) => {
+		setInputText(e.target.value);
+	};
+
+	const handleSubmit = (event) => {
+		console.log("Form was submitted!", event);
+	};
 
 	useEffect(() => {
 		listMessages(setMessages);
@@ -22,9 +31,22 @@ function Chat() {
 	}, []);
 	return (
 		<div>
-			{messages.map((message) => {
-				return <li key={message.id}>{message.message}</li>;
-			})}
+			<div className="messageList">
+				{messages.map((message) => {
+					return <div key={message.id}>{message.message}</div>;
+				})}
+			</div>
+			<form onSubmit={handleSubmit}>
+				<div className="messageInput">
+					<input
+						type="text"
+						placeholder="message"
+						onChange={onChange}
+						value={inputText}
+					/>
+					<button type="submit">Submit</button>
+				</div>
+			</form>
 		</div>
 	);
 }
