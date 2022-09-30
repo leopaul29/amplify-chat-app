@@ -4,7 +4,7 @@ import awsConfig from "./aws-exports";
 
 import Amplify from "@aws-amplify/core";
 
-import { DataStore, Predicates } from "@aws-amplify/datastore";
+import { DataStore, Predicates, SortDirection } from "@aws-amplify/datastore";
 import { Rooms, Messages, Users } from "./models";
 
 Amplify.configure(awsConfig);
@@ -14,12 +14,12 @@ async function listRooms(setRooms) {
 	setRooms(rooms);
 }
 
-async function onCreate(messageText) {
+async function onCreate(messageText, roomId) {
 	await DataStore.save(
 		new Messages({
 			message: messageText,
 			usersID: "37f0749a-38f7-4843-b082-6f1387904ffe",
-			messagesRoomsId: "94bab236-69f2-473e-8f87-be147a7a21d7",
+			messagesRoomsId: roomId,
 		})
 	);
 }
@@ -42,12 +42,18 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		DataStore.observeQuery(Messages, (c) => {
-			c.messagesRoomsId("eq", state.roomId);
-		}).subscribe(({ items }) => {
-			console.log("messages", items);
+		const sub = DataStore.observeQuery(
+			Messages,
+			(c) => c.messagesRoomsId("eq", state.roomId),
+			{
+				sort: (s) => s.createdAt(SortDirection.ASCENDING),
+			}
+		).subscribe(({ items }) => {
 			setMessages(items);
 		});
+		return () => {
+			sub.unsubscribe();
+		};
 	}, [state.roomId]);
 
 	const sendMessage = (event) => {
@@ -55,7 +61,7 @@ function App() {
 
 		if (inputText === "") return;
 
-		onCreate(inputText);
+		onCreate(inputText, state.roomId);
 
 		setInputText("");
 	};
