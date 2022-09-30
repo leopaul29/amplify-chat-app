@@ -16,6 +16,7 @@ function Chat() {
 	};
 
 	const handleSubmit = (event) => {
+		event.preventDefault();
 		console.log("Form was submitted!", event);
 	};
 
