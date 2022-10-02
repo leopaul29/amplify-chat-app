@@ -1,0 +1,9 @@
+body {
+	background-color: rgb(27, 26, 26);
+	color: aliceblue;
+}
+.amplify-chat {
+	display: flex;
+	flex-direction: row;
+	gap: 50px;
+}

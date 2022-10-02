@@ -29,9 +29,13 @@ function App() {
 	const [rooms, setRooms] = useState([]);
 	const [messages, setMessages] = useState([]);
 	const [inputText, setInputText] = useState("");
+	const [users, setUsers] = useState([]);
 
+	// useEffect init
 	useEffect(() => {
 		listRooms(setRooms);
+
+		if (rooms.length > 0) state.roomId = rooms[0].id;
 
 		const subscription = DataStore.observe(Rooms).subscribe((msg) => {
 			console.log("model", msg.model, msg.opType, msg.element);
@@ -51,11 +55,32 @@ function App() {
 		).subscribe(({ items }) => {
 			setMessages(items);
 		});
-		return () => {
-			sub.unsubscribe();
-		};
+
+		return () => sub.unsubscribe();
 	}, [state.roomId]);
 
+	useEffect(() => {
+		const sub = DataStore.observeQuery(Messages, Predicates.ALL).subscribe(
+			({ items }) => {
+				console.log("items", items);
+				console.log(
+					"items.map((item) => item.userId",
+					items.map((item) => item.usersID)
+				);
+				setUsers([
+					...new Set(
+						items.map((item) => {
+							return item.usersID;
+						})
+					),
+				]);
+			}
+		);
+
+		return () => sub.unsubscribe();
+	}, [state.roomId]);
+
+	// send function
 	const sendMessage = (event) => {
 		event.preventDefault();
 
@@ -67,24 +92,35 @@ function App() {
 	};
 
 	return (
-		<div className="App">
+		<div className="app">
 			<h1>Amplify Chat app</h1>
 			<pre>{JSON.stringify(state)}</pre>
 			<div className="amplify-chat">
-				<nav>
-					<ul>
-						{rooms.map((room) => {
-							return (
-								<li
-									key={room.id}
-									onClick={() => setState({ ...state, roomId: room.id })}
-								>
-									{room.roomname}
-								</li>
-							);
-						})}
-					</ul>
-				</nav>
+				<div className="sidebar">
+					<nav className="navRooms">
+						<h2>Rooms</h2>
+						<ul>
+							{rooms.map((room) => {
+								return (
+									<li
+										key={room.id}
+										onClick={() => setState({ ...state, roomId: room.id })}
+									>
+										{room.roomname}
+									</li>
+								);
+							})}
+						</ul>
+					</nav>
+					<div className="roomUsers">
+						<h2>Users</h2>
+						<ul>
+							{users.map((user) => {
+								return <li key={user.id}>{user}</li>;
+							})}
+						</ul>
+					</div>
+				</div>
 				<div>
 					<div className="messageList">
 						{messages.map((message) => {
